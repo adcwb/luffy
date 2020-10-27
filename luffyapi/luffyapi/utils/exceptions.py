@@ -25,4 +25,9 @@ def custom_exception_handler(exc, context):
             logger.error('[%s] %s' % (view, exc))
             response = Response({'message': '服务器内部错误'}, status=status.HTTP_507_INSUFFICIENT_STORAGE)
 
+        if isinstance(exc,Exception):
+            # 未知异常
+            logger.error("发生未知异常。view=%s，exc=%s" % (view, exc))
+            response = Response({'detail': '服务器出现未知错误'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
     return response

@@ -3,14 +3,22 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import settings from "./settings";
+import settings from './settings'
+import ElementUI from 'element-ui';
+import 'element-ui/lib/theme-chalk/index.css';
+import axios from 'axios'
 
+axios.defaults.withCredentials = false;
 Vue.config.productionTip = false
-Vue.prototype.$settings = settings;  //将settings中的内容作为vue的属性，以后就不用每次都导包了
+Vue.prototype.$settings = settings
+Vue.prototype.$axios= axios
 /* eslint-disable no-new */
+Vue.use(ElementUI);
+
 new Vue({
   el: '#app',
   router,
   components: { App },
   template: '<App/>'
 })
+settings.js

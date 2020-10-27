@@ -11,9 +11,14 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import sys
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# 把apps路经注册到系统中
+sys.path.insert(0, os.path.join(BASE_DIR, "apps"))
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -28,6 +33,7 @@ ALLOWED_HOSTS = ['*']
 
 # Application definition
 
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -35,9 +41,17 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'corsheaders',  # 跨域
+    'rest_framework',  # drf框架的注册
+    'xadmin',
+    'crispy_forms',
+    'reversion',
+    'home',  # app home注册
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -122,6 +136,11 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# 项目中存储上传文件的根目录[暂时配置]，注意，uploads目录需要手动创建否则上传文件时报错
+MEDIA_ROOT = os.path.join(BASE_DIR, "uploads")  #
+# 访问上传文件的url地址前缀
+MEDIA_URL = "/media/"
+
 # 日志配置
 LOGGING = {
     'version': 1,  # 使用的python内置的logging模块，那么python可能会对它进行升级，所以需要写一个版本号，目前就是1版本
@@ -172,3 +191,34 @@ LOGGING = {
         },
     }
 }
+
+# 异常处理
+REST_FRAMEWORK = {
+    'EXCEPTION_HANDLER': 'luffyapi.utils.exceptions.custom_exception_handler',
+}
+
+# 跨域CORS设置
+# CORS_ORIGIN_ALLOW_ALL为True，指定所有域名（ip）都可以访问后端接口，默认为False
+# CORS_ORIGIN_WHITELIST指定能够访问后端接口的ip或域名列表
+# CORS_ORIGIN_WHITELIST = [
+#     'http://127.0.0.1:8080',
+#     'http://localhost:8080',
+#     'http://192.168.13.254:8080'
+# ]
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+# CORS_ALLOW_CREDENTIALS允许跨域时携带Cookie，默认为False
+CORS_ALLOW_CREDENTIALS = False
+
+# django admin设
+# 修改使用中文界面
+LANGUAGE_CODE = 'zh-Hans'
+
+# 修改时区
+TIME_ZONE = 'Asia/Shanghai'
+# LANGUAGE_CODE = 'en-us'
+# TIME_ZONE = 'UTC'
+USE_I18N = True
+USE_L10N = True
+USE_TZ = True
