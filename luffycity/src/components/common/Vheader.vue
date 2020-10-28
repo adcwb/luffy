@@ -12,21 +12,14 @@
             </el-col>
             <el-col class="nav" :span="10">
               <el-row>
-                <el-col :span="3">
-                  <router-link to="/" class="active">免费课</router-link>
+                <el-col :span="3" v-for="(value,index) in nav_data_list" :key="index">
+
+                  <a :href="value.link" class="active" v-if="value.is_site">{{value.title}}</a>
+
+                  <router-link :to="value.link" v-else>{{value.title}}</router-link>
+
                 </el-col>
-                <el-col :span="3">
-                  <router-link to="/">轻课</router-link>
-                </el-col>
-                <el-col :span="3">
-                  <router-link to="/">学位课</router-link>
-                </el-col>
-                <el-col :span="3">
-                  <router-link to="/">题库</router-link>
-                </el-col>
-                <el-col :span="3">
-                  <router-link to="/">教育</router-link>
-                </el-col>
+
               </el-row>
 
             </el-col>
@@ -45,7 +38,7 @@
                 </p>
               </div>
               <div class="register" v-show="!token">
-                <router-link to="/login">
+                <router-link to="/user/login">
                   <button class="signin">登录</button>
                 </router-link>
                 &nbsp;&nbsp;|&nbsp;&nbsp;
@@ -100,7 +93,7 @@
                         <img src="https://hcdn2.luffycity.com/media/frontend/activity/back_1568185800.821227.svg"
                              alt="">
                       </li>
-                      <li>
+                      <li @click="logout">
                         退出
                         <img src="https://hcdn2.luffycity.com/media/frontend/activity/back_1568185800.821227.svg"
                              alt="">
@@ -133,23 +126,22 @@ export default {
   data() {
     return {
 
-      token: true, // 登录成功与否的标记
+      token: false, // 登录成功与否的标记
       s_status: true, // 放大镜效果切换控制,默认input标签不显示
       list_status: false, // 个人中心下拉菜单是否显示
+
+      nav_data_list:[],
     }
+  },
+  created(){
+    this.get_nav_data();
+    this.check_login();
   },
   methods: {
     ulShowHandler() {
       // console.log(this);
       this.s_status = false;
       console.log(this.$refs);a
-
-      // this.$nextTick(()=>{  //延迟回调方法
-      //   console.log(this);
-      //   this.$refs.Input.focus();
-      // })
-      //延迟回调方法，Vue中DOM更新是异步的,也就是说让Vue去显示我们的input标签的操作是异步的，如果我们直接执行this.$refs.Input.focus();是不行的
-      // 当方法的DOM操作完成之后，才执行延时动作
 
       this.$nextTick(function () {
         console.log(this);
@@ -167,7 +159,33 @@ export default {
     },
     personInfoOut() {
       this.list_status = false;
+    },
+
+    get_nav_data(){
+      this.$axios.get(`${this.$settings.Host}/home/nav/header/`)
+      .then((res)=>{
+        this.nav_data_list = res.data;
+      })
+    },
+
+    check_login(){
+      this.token = localStorage.token || sessionStorage.token;
+      //console.log(this.token);
+    },
+    // 退出登录
+    logout(){
+
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('username');
+      sessionStorage.removeItem('id');
+      localStorage.removeItem('token');
+      localStorage.removeItem('username');
+      localStorage.removeItem('id');
+      console.log('xxxxxx')
+      this.check_login();
+      // this.token = false;
     }
+
   }
 }
 

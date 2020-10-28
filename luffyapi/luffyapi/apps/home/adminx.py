@@ -1,6 +1,6 @@
 import xadmin
 from xadmin import views
-from .models import Banner
+from .models import Banner, Nav
 
 
 class BaseSetting(object):
@@ -28,3 +28,11 @@ class BannerModelAdmin(object):
 
 
 xadmin.site.register(Banner, BannerModelAdmin)
+
+
+# 导航菜单
+class NavModelAdmin(object):
+    list_display = ["title", "link", "is_show", "is_site", "position"]
+
+
+xadmin.site.register(Nav, NavModelAdmin)
