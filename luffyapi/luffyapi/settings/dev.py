@@ -12,13 +12,13 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 import sys
+import datetime
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # 把apps路经注册到系统中
 sys.path.insert(0, os.path.join(BASE_DIR, "apps"))
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'reversion',
     'home',  # app home注册
+    'users',  # app users注册
 ]
 
 MIDDLEWARE = [
@@ -103,6 +104,7 @@ DATABASES = {
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
 
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -118,18 +120,13 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# 注册自定义用户模型，格式：“应用名.模型类名”
+"""`AUTH_USER_MODEL` 参数的设置以`点.`来分隔，表示`应用名.模型类名`。"""
+AUTH_USER_MODEL = 'users.User'
+
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
-USE_I18N = True
-
-USE_L10N = True
-
-USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
@@ -195,17 +192,37 @@ LOGGING = {
 # 异常处理
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'luffyapi.utils.exceptions.custom_exception_handler',
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
 }
 
-# 跨域CORS设置
-# CORS_ORIGIN_ALLOW_ALL为True，指定所有域名（ip）都可以访问后端接口，默认为False
-# CORS_ORIGIN_WHITELIST指定能够访问后端接口的ip或域名列表
-# CORS_ORIGIN_WHITELIST = [
-#     'http://127.0.0.1:8080',
-#     'http://localhost:8080',
-#     'http://192.168.13.254:8080'
-# ]
+# 配置JWT JWT_EXPIRATION_DELTA 指明token的有效期
 
+JWT_AUTH = {
+    # 'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
+    'JWT_RESPONSE_PAYLOAD_HANDLER': 'users.utils.jwt_response_payload_handler',
+}
+
+
+AUTHENTICATION_BACKENDS = [
+    'users.utils.UsernameMobileAuthBackend',
+]
+
+
+"""
+跨域CORS设置
+CORS_ORIGIN_ALLOW_ALL为True，指定所有域名（ip）都可以访问后端接口，默认为False
+CORS_ORIGIN_WHITELIST指定能够访问后端接口的ip或域名列表
+CORS_ORIGIN_WHITELIST = [
+    'http://127.0.0.1:8080',
+    'http://localhost:8080',
+    'http://192.168.13.254:8080'
+]
+"""
 CORS_ORIGIN_ALLOW_ALL = True
 
 # CORS_ALLOW_CREDENTIALS允许跨域时携带Cookie，默认为False

@@ -151,7 +151,6 @@ export default {
 
     },
     inputShowHandler() {
-      console.log('xxxxx')
       this.s_status = true;
     },
     personInfoList() {
@@ -162,7 +161,7 @@ export default {
     },
 
     get_nav_data(){
-      this.$axios.get(`${this.$settings.Host}/home/nav/header/`)
+      this.$axios.get(`${this.$settings.Host}/home/nav/top/`)
       .then((res)=>{
         this.nav_data_list = res.data;
       })
