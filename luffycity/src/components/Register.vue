@@ -15,7 +15,7 @@
 
           <div>
             <input v-model = "sms" type="text" placeholder="输入验证码" class="user" style="width: 62%">
-            <button style="width: 34%;height: 41px;" @click="getSmsCode">点击获取验证码</button>
+            <button style="width: 34%;height: 41px;" @click="getSmsCode" :disabled="this.flag">{{btn_msg}}</button>
           </div>
           <button class="register_btn" @click="registerHandler">注册</button>
           <p class="go_login" >已有账号 <router-link to="/user/login">直接登录</router-link></p>
@@ -30,11 +30,16 @@ export default {
   name: 'Register',
   data(){
     return {
-      sms:"",
-      mobile:"",
-      password:"",
-      r_password:"",
-      validateResult:false,
+        sms:"",
+        mobile:"",
+        password:"",
+        r_password:"",
+        validateResult:false,
+        interval_time:60,  // 倒计时时间
+        btn_msg:'点击获取验证码',
+        flag:false,  // 判断定时器 是否已经开启
+        // disabled:true,
+
     }
   },
   created(){
@@ -51,9 +56,9 @@ export default {
       }
       // 发送请求
       this.$axios.get(`${this.$settings.Host}/users/check_phone/?phone=${phoneNumber}`)  // request.GET.get(phone)
-        .then((res)=>{
-          console.log(res);
-        }).catch((error)=>{
+      .then((res)=>{
+        console.log(res);
+      }).catch((error)=>{
         this.$message.error(error.response.data.error_msg);
       })
 
@@ -63,20 +68,44 @@ export default {
 
       this.$axios.post(`${this.$settings.Host}/users/register/`,{
         sms:this.sms,
-        mobile:this.mobile,
+        phone:this.mobile,
         password:this.password,
         r_password:this.r_password,
       }).then((res)=>{
+        sessionStorage.token = res.data.token;
+        sessionStorage.username = res.data.username;
+        sessionStorage.id = res.data.id;
+        this.$router.push('/');
 
       }).catch((error)=>{
-
+        console.log(error.response);
       })
-
-
     },
 
+    // 点击获取验证码
     getSmsCode(){
-      this.$axios.get(`${this.$settings.Host}/users/sms_code/`)
+      this.$axios.get(`${this.$settings.Host}/users/sms_code/${this.mobile}`)
+      .then((res)=>{
+        if (!this.flag){
+          this.flag = setInterval(()=>{
+            if (this.interval_time > 0){
+              this.interval_time--;
+              this.btn_msg = `${this.interval_time}秒后重新获取`;
+
+            }else {
+              this.interval_time=60;
+              this.btn_msg = '点击发送验证码'
+              clearInterval(this.flag);
+              this.flag = false;
+            }
+          },1000)
+        }
+
+
+      })
+      .catch((error)=>{
+        this.$message.error(error.response.data.msg);
+      })
 
 
     }

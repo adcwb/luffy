@@ -245,6 +245,13 @@ TENCENT_CAPTCHA = {
     "App_Secret_Key": "0UNkPIA8yP_cjiLubTSKaJQ**",
 }
 
+
+# 阿里云短信接口
+SMS_INFO = {
+    'AccessKeyId': 'LTAI4G9wKSbTB5dyDYhGNRLV',
+    'AccessKeySecret': 'zUGaBxFzrWyHv2bE6oIbvit3vnzuGl',
+}
+
 # 设置redis缓存
 CACHES = {
     # 默认缓存

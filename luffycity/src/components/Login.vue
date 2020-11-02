@@ -26,9 +26,9 @@
           <p class="go_login" >没有账号 <span>立即注册</span></p>
         </div>
         <div class="inp" v-show="login_type==1">
-          <input v-model = "username" type="text" placeholder="手机号码" class="user">
-          <input v-model = "password"  type="text" class="pwd" placeholder="短信验证码">
-          <button id="get_code">获取验证码</button>
+          <input v-model = "mobile" type="text" placeholder="手机号码" class="user" @blur="checkPhone">
+          <input v-model = "sms" type="text" placeholder="输入验证码" class="user" style="width: 62%">
+          <button style="width: 34%;height: 41px;" @click="getSmsCode" :disabled="this.flag">{{btn_msg}}</button>
           <button class="login_btn">登录</button>
           <p class="go_login" >没有账号 <span>立即注册</span></p>
         </div>
@@ -46,10 +46,34 @@ export default {
       username:"",
       password:"",
       remember:false,
+      sms:"",
+      mobile:"",
+      interval_time:60,  // 倒计时时间
+      btn_msg:'点击获取验证码',
+      flag:false,  // 判断定时器 是否已经开启
     }
   },
 
   methods:{
+    checkPhone(){
+
+      let phoneNumber = this.mobile;
+      // 前端
+      let reg = /^1[3-9][0-9]{9}$/;
+      if (!reg.test(phoneNumber)){
+        this.$message.error('手机号格式错误');
+        return false;
+      }
+      // 发送请求
+      this.$axios.get(`${this.$settings.Host}/users/check_phone/?phone=${phoneNumber}`)  // request.GET.get(phone)
+        .then((res)=>{
+          console.log(res);
+        }).catch((error)=>{
+        this.$message.error(error.response.data.error_msg);
+      })
+
+    },
+
     loginHandle(){
       // 判断手机号或者密码是否为空！
       if(this.username.length<1 || this.password.length<1){
@@ -118,6 +142,33 @@ export default {
       });
       captcha1.show(); // 显示验证码
 
+
+
+    },
+
+
+    getSmsCode(){
+      this.$axios.get(`${this.$settings.Host}/users/sms_code/${this.mobile}`)
+      .then((res) => {
+        if (!this.flag){
+          this.flag = setInterval(() =>{
+            if (this.interval_time > 0) {
+              this.interval_time--;
+              this.btn_msg = `${this.interval_time}秒后重新获取`;
+            }
+            else {
+              this.interval_time = 60;
+              this.btn_msg = '点击发送验证码'
+              clearInterval(this.flag);
+              this.flag = false;
+            }
+          },
+            1000)
+        }
+      })
+      .catch((error) => {
+        this.$message.error(error.response.data.msg);
+      })
 
 
     }

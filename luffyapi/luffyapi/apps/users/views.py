@@ -1,5 +1,6 @@
 import random
 import re
+import logging
 
 from django.shortcuts import render
 from rest_framework.views import APIView
@@ -8,7 +9,7 @@ from rest_framework.response import Response
 # Create your views here.
 from rest_framework_jwt.views import ObtainJSONWebToken
 from rest_framework import status
-from users.serializers import CustomeSerializer, RegisterModelSerializer
+from .serializers import CustomeSerializer, RegisterModelSerializer
 from .utils import get_user_obj
 from . import models
 from luffyapi.settings import constants
@@ -42,10 +43,12 @@ class CheckPhoneNumber(APIView):
 
 class RegisterView(CreateAPIView):
     queryset = models.User.objects.all()
+    print(queryset)
     serializer_class = RegisterModelSerializer
 
 
 from django_redis import get_redis_connection
+from  luffyapi.libs.Sms import sms_codes
 
 
 class GetSMSCodeView(APIView):
@@ -61,7 +64,9 @@ class GetSMSCodeView(APIView):
 
         # 生成验证码
         sms_code = "%06d" % random.randint(0, 999999)
-        print(sms_code)
+        sms_code_tmp = {"code": sms_code}
+        print(sms_code_tmp)
+
 
         # 保存验证码
 
@@ -70,6 +75,12 @@ class GetSMSCodeView(APIView):
         #
         conn.setex('mobile_interval_%s' % phone, constants.SMS_CODE_INTERVAL_TIME, sms_code)  # 设置发送短信的时间间隔
 
-        # todo 发送验证码
-        #
+        #  发送验证码
+        # res = sms_codes(phone, sms_code_tmp)
+        res = 1234
+        print(res)
+        logger = logging.getLogger('django')
+        if not res:
+            logger.error('{}手机号短信发送失败'.format(phone))
+            return Response({'msg': '短信发送失败，请联系管理员'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response({'msg': 'ok'})
