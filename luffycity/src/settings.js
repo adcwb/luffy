@@ -1,3 +1,17 @@
 export default {
   Host:"http://www.luffyapi.com:8000",
+  check_login(ths){
+    let token = localStorage.token || sessionStorage.token;
+
+    ths.$axios.post(`${this.Host}/users/verify/`,{
+      token:token,
+    }).then((res)=>{
+
+      ths.token = token;
+
+    }).catch((error)=>{
+      ths.token = false;
+    })
+
+  }
 }

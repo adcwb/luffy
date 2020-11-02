@@ -43,7 +43,7 @@
                 </router-link>
                 &nbsp;&nbsp;|&nbsp;&nbsp;
                 <a target="_blank" href="https://www.luffycity.com/signup">
-                  <router-link to="/register">
+                  <router-link to="/user/register">
                     <button class="signup">注册</button>
                   </router-link>
 
@@ -135,22 +135,26 @@ export default {
   },
   created(){
     this.get_nav_data();
-    this.check_login();
+
+    // this.$settings.check_login(this)
+    this.$settings.check_login(this);
+
   },
   methods: {
     ulShowHandler() {
-      // console.log(this);
+
       this.s_status = false;
-      console.log(this.$refs);a
+
 
       this.$nextTick(function () {
-        console.log(this);
+
         this.$refs.Input.focus();
       });
 
 
     },
     inputShowHandler() {
+
       this.s_status = true;
     },
     personInfoList() {
@@ -161,16 +165,13 @@ export default {
     },
 
     get_nav_data(){
-      this.$axios.get(`${this.$settings.Host}/home/nav/top/`)
+      this.$axios.get(`${this.$settings.Host}/home/nav/header/`)
       .then((res)=>{
         this.nav_data_list = res.data;
       })
     },
 
-    check_login(){
-      this.token = localStorage.token || sessionStorage.token;
-      //console.log(this.token);
-    },
+
     // 退出登录
     logout(){
 
@@ -180,9 +181,9 @@ export default {
       localStorage.removeItem('token');
       localStorage.removeItem('username');
       localStorage.removeItem('id');
-      console.log('xxxxxx')
-      this.check_login();
-      // this.token = false;
+
+      this.$settings.check_login(this);
+
     }
 
   }
@@ -190,6 +191,9 @@ export default {
 
 
 </script>
+
+
+123
 
 <style scoped>
 .header-cont .nav .active {

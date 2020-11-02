@@ -1,5 +1,5 @@
 <template>
-    <div class="footer">
+    <div class="footer" >
       <div class="footer-item">
         <div class="foot-left">
         <div class="foot-content">
@@ -38,6 +38,9 @@
 <style scoped>
 
   .footer{
+    /*position:fixed;*/
+    /*bottom:0;*/
+    /*left:0;*/
     display: flex;
     align-items: center;
     width: 100%;
@@ -45,6 +48,7 @@
     flex-direction: column;
     overflow: hidden;
     background: #191c25;
+    margin-top: 400px;
   }
   .footer .foot-left{
     display: flex;

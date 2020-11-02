@@ -202,16 +202,14 @@ REST_FRAMEWORK = {
 # 配置JWT JWT_EXPIRATION_DELTA 指明token的有效期
 
 JWT_AUTH = {
-    # 'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=300),
+    # 'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=30),
     'JWT_EXPIRATION_DELTA': datetime.timedelta(days=1),
     'JWT_RESPONSE_PAYLOAD_HANDLER': 'users.utils.jwt_response_payload_handler',
 }
 
-
 AUTHENTICATION_BACKENDS = [
-    'users.utils.UsernameMobileAuthBackend',
+    'users.utils.CustomeModelBackend',
 ]
-
 
 """
 跨域CORS设置
@@ -239,3 +237,46 @@ TIME_ZONE = 'Asia/Shanghai'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
+
+# 腾讯防水墙配置
+TENCENT_CAPTCHA = {
+    "GATEWAY": "https://ssl.captcha.qq.com/ticket/verify",
+    "APPID": "2021539286",
+    "App_Secret_Key": "0UNkPIA8yP_cjiLubTSKaJQ**",
+}
+
+# 设置redis缓存
+CACHES = {
+    # 默认缓存
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        # 项目上线时,需要调整这里的路径
+        # "LOCATION": "redis://127.0.0.1:6379/0",
+        "LOCATION": "redis://:123456@127.0.0.1:6379/0",
+        # 如果redis设置密码的话，需要以这种格式host前面是密码
+
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+    # 提供给xadmin或者admin的session存储
+    "session": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://:123456@127.0.0.1:6379/1",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+    # 提供存储短信验证码
+    "sms_code": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://:123456@127.0.0.1:6379/2",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    }
+}
+
+# 设置xadmin用户登录时,登录信息session保存到redis
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "session"
