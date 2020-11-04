@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'reversion',
     'home',  # app home注册
     'users',  # app users注册
+    'course',  # app course注册
 ]
 
 MIDDLEWARE = [

@@ -131,7 +131,7 @@ dmypy.json
 .idea/*
 ./luffyapi/.idea/
 ./luffyapi/.idea/*
-
-
+luffyapi/settings/*
+./luffyapi/settings/dev.py
 ./luffycity/node_modules/
 ./luffycity/node_modules/*

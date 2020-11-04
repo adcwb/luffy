@@ -48,8 +48,8 @@ class RegisterView(CreateAPIView):
 
 
 from django_redis import get_redis_connection
-from  luffyapi.libs.Sms import sms_codes
-
+# from  luffyapi.libs.Sms import sms_codes
+from mycelery.sms.tasks import sms_codes
 
 class GetSMSCodeView(APIView):
 
@@ -77,10 +77,9 @@ class GetSMSCodeView(APIView):
 
         #  发送验证码
         # res = sms_codes(phone, sms_code_tmp)
-        res = 1234
-        print(res)
-        logger = logging.getLogger('django')
-        if not res:
-            logger.error('{}手机号短信发送失败'.format(phone))
-            return Response({'msg': '短信发送失败，请联系管理员'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        sms_codes.delay(phone, sms_code_tmp)
+        # logger = logging.getLogger('django')
+        # if not res:
+        #     logger.error('{}手机号短信发送失败'.format(phone))
+        #     return Response({'msg': '短信发送失败，请联系管理员'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response({'msg': 'ok'})
