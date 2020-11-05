@@ -11,3 +11,6 @@ FOOTER_NAV_LENGTH = 5
 SMS_CODE_EXPIRE_TIME = 60 * 10
 # 短信间隔时间
 SMS_CODE_INTERVAL_TIME = 60
+
+# server address
+SERVER_ADDR = 'http://www.luffyapi.com:8000'

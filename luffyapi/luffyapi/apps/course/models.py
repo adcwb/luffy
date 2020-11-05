@@ -1,5 +1,7 @@
 from django.db import models
 from luffyapi.utils.models import BaseModel
+from ckeditor_uploader.fields import RichTextUploadingField
+from luffyapi.settings import constants
 
 
 # Create your models here.
@@ -40,11 +42,11 @@ class Course(BaseModel):
     )
     name = models.CharField(max_length=128, verbose_name="课程名称")
     course_img = models.ImageField(upload_to="course", max_length=255, verbose_name="封面图片", blank=True, null=True)
-
+    course_video = models.FileField(upload_to='video', verbose_name='封面video', blank=True, null=True, max_length=255)
     # 费用类型字段是为了后期一些其他功能拓展用的，现在可以先不用，或者去掉它，目前我们项目用不到
     course_type = models.SmallIntegerField(choices=course_type, default=0, verbose_name="付费类型")
     # 这个字段是课程详情页里面展示的，并且详情介绍里面用户将来可能要上传一些图片之类的，所以我们会潜入富文本编辑器，让用户填写数据的时候可以上传图片啊、写标题啊、css、html等等内容
-    brief = models.TextField(max_length=2048, verbose_name="详情介绍", null=True, blank=True)
+    brief = RichTextUploadingField(max_length=2048, verbose_name="详情介绍", null=True, blank=True)
 
     level = models.SmallIntegerField(choices=level_choices, default=1, verbose_name="难度等级")
     pub_date = models.DateField(verbose_name="发布日期", auto_now_add=True)
@@ -86,6 +88,17 @@ class Course(BaseModel):
                     'lesson': lesson.lesson,
                 })
         return lession_list[:4]
+
+    def level_name(self):
+
+        return self.get_level_display()
+
+    def new_brief(self):
+        data = self.brief
+        server_addr = constants.SERVER_ADDR
+        data = data.replace('src="/media', f'class="img_xx" src="{server_addr}/media')
+
+        return data
 
 
 class Teacher(BaseModel):

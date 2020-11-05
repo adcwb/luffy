@@ -50,6 +50,9 @@ INSTALLED_APPS = [
     'home',  # app home注册
     'users',  # app users注册
     'course',  # app course注册
+
+    'ckeditor',  # 富文本编辑器
+    'ckeditor_uploader',  # 富文本编辑器上传图片模块
 ]
 
 MIDDLEWARE = [
@@ -288,3 +291,14 @@ CACHES = {
 # 设置xadmin用户登录时,登录信息session保存到redis
 SESSION_ENGINE = "django.contrib.sessions.backends.cache"
 SESSION_CACHE_ALIAS = "session"
+
+
+# 富文本编辑器ckeditor配置
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'full',  # 工具条功能,full表示全部，Basic表示基本功能，功能少很多，还有个Custom自定义功能选项
+        'height': 300,      # 编辑器高度
+        # 'width': 300,     # 编辑器宽
+    },
+}
+CKEDITOR_UPLOAD_PATH = ''  # 上传图片保存路径，留空则调用django的文件上传功能

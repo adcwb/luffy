@@ -10,10 +10,10 @@
           <li v-for="(value, index) in category_list" :key="value.id" @click="category=value.id" :class="{this:category===value.id}">{{value.name}}</li>
 
         </ul>
-      </div>
 
+      </div>
       <!-- 课程列表 -->
-        <div class="course-list">
+      <div class="course-list">
         <div class="course-item" v-for="(course, courseindex) in course_list">
           <div class="course-image">
 
@@ -21,7 +21,7 @@
 
           </div>
           <div class="course-info">
-            <h3><router-link to="">{{course.name}}</router-link> <span><img src="/static/img/avatar1.svg" alt="">{{course.students}}人已加入学习</span></h3>
+            <h3><router-link :to="'/Course/detail/'+course.id+'/'">{{course.name}}</router-link> <span><img src="/static/img/avatar1.svg" alt="">{{course.students}}人已加入学习</span></h3>
             <p class="teather-info">{{course.teacher.name}} {{course.teacher.signature}} {{course.teacher.title}} <span>共{{course.lessons}}
               课时/{{course.lessons===course.pub_lessons? '更新完成':`已更新${course.pub_lessons}课时`}}</span></p>
             <ul class="lesson-list">
@@ -59,9 +59,8 @@
 </template>
 
 <script>
-  import Banner from '@/components/common/Banner'
-  import Footer from '@/components/common/Footer'
-  import Vheader from "./common/Vheader";
+  import Vheader from "./common/Vheader"
+  import Footer from "./common/Footer"
   export default {
       name: "Course",
       data(){
@@ -92,24 +91,27 @@
             this.fitlers={}
           }
 
+          //console.log('>>>>>',this.fitlers)
           this.get_course(); //当分类数据发生变化时，出发获取数据的动作
         }
       },
       methods:{
         handleSizeChange(val){
           this.fitlers['size'] = val
-
+          // console.log(val);
           this.get_course();
         },
         handleCurrentChange(val){
           this.fitlers['page'] = val
-
+          // console.log(val);
           this.get_course();
         },
 
+        // 获取所有分类数据
         get_categorys(){
           this.$axios.get(`${this.$settings.Host}/course/categorys/`)
         .then((res)=>{
+          //console.log(res.data);
           this.category_list = res.data;
         })
         },
@@ -122,6 +124,7 @@
             params:this.fitlers,
           })
           .then((res)=>{
+            //console.log(res.data);
             this.total = res.data.count
             this.course_list = res.data.results;
           })
@@ -134,12 +137,13 @@
 
 
 
-
 <style scoped>
-  .c1 /deep/ .el-pagination{
-    text-align: center;
-    font-size: 40px;
-  }
+
+.c1 /deep/ .el-pagination{
+  text-align: center;
+  font-size: 40px;
+}
+
   .course{
     background: #f6f6f6;
   }
@@ -325,7 +329,7 @@
     color: #666;
     padding-left: 22px;
     /* background: url("路径") 是否平铺 x轴位置 y轴位置 */
-    background: url("/static/img/play-icon-gray.svg") no-repeat left 4px;
+    background: url("/static/image/play-icon-gray.svg") no-repeat left 4px;
     margin-bottom: 15px;
   }
   .course-item .lesson-list li .lesson-title{
@@ -337,7 +341,7 @@
       max-width: 200px;
   }
   .course-item .lesson-list li:hover{
-      background-image: url("/static/img/play-icon-yellow.svg");
+      background-image: url("/static/image/play-icon-yellow.svg");
       color: #ffc210;
   }
   .course-item .lesson-list li .free{
