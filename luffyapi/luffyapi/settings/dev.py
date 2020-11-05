@@ -47,9 +47,12 @@ INSTALLED_APPS = [
     'xadmin',
     'crispy_forms',
     'reversion',
+    'django_filters',  # 过滤组件，
+
     'home',  # app home注册
     'users',  # app users注册
     'course',  # app course注册
+    'cart',  # app cart注册
 
     'ckeditor',  # 富文本编辑器
     'ckeditor_uploader',  # 富文本编辑器上传图片模块
@@ -282,6 +285,14 @@ CACHES = {
     "sms_code": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": "redis://:123456@127.0.0.1:6379/2",
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
+    },
+    # 提供给购物车使用
+    "cart": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://:123456@127.0.0.1:6379/3",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }

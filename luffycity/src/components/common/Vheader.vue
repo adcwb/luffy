@@ -51,7 +51,7 @@
               </div>
               <div class="shop-car" v-show="token">
                 <router-link to="/cart">
-                  <b>6</b>
+                  <b>{{$store.state.cart_length}}</b>
                   <img src="@/assets/shopcart.png" alt="">
                   <span>购物车 </span>
                 </router-link>
@@ -135,11 +135,15 @@ export default {
   },
   created(){
     this.get_nav_data();
-
-    // this.$settings.check_login(this)
     this.$settings.check_login(this);
 
+    if (this.$store.state.cart_length === 0){
+      let cart_length = sessionStorage.getItem('cart_length');
+      this.$store.commit('add_cart',cart_length);
+      console.log(this.$store.state);
+    }
   },
+
   methods: {
     ulShowHandler() {
 
@@ -189,11 +193,7 @@ export default {
   }
 }
 
-
 </script>
-
-
-123
 
 <style scoped>
 .header-cont .nav .active {

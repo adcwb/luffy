@@ -123,12 +123,12 @@ export default {
 
             this.$confirm('下一步想去哪消费！', '提示', {
               confirmButtonText: '去首页',
-              cancelButtonText: '去个人中心',
+              cancelButtonText: '回到上一页',
               type: 'success'
             }).then(() => {
               this.$router.push('/');
             }).catch(() => {
-              this.$router.push('/person');
+              this.$router.go(-1);
             });
 
 

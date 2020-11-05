@@ -30,7 +30,7 @@
                 <button class="buy-now">立即购买</button>
                 <button class="free">免费试学</button>
               </div>
-              <div class="add-cart"><img src="/static/img/cart-yellow.svg" alt="">加入购物车</div>
+              <div class="add-cart" @click="addCart"><img src="/static/img/cart-yellow.svg" alt="">加入购物车</div>
             </div>
           </div>
         </div>
@@ -123,7 +123,10 @@ export default {
           fluid: true, // 当true时，Video.js player将拥有流体大小。换句话说，它将按比例缩放以适应其容器。
           sources: [{ // 播放资源和资源格式
             type: "video/mp4",
-            src: "" //你的视频地址（必填）
+            src: "http://upos-sz-mirrorkodo.bilivideo.com/upgcxcode/30/17/252781730/252781730-1-80.flv?e=ig8euxZM2rNcNb4ghwdVhoM3hbdVhwdEto8g5X10ugNcXBlqNxHxNEVE5XREto8KqJZHUa6m5J0\n" +
+              "SqE85tZvEuENvNC8xNEVE9EKE9IMvXBvE2ENvNCImNEVEK9GVqJIwqa80WXIekXRE9IMvXBvEuENvNCImNEVEua6m2jIxux0CkF6s2JZv5x0DQJZY2F8SkXKE9IB5QK==&deadline=1604569126&gen=playurl&\n" +
+              "nbs=1&oi=2070943366&os=kodobv&platform=pc&trid=809bdaae0b624cb1a959b436ae13ec95&uipk=5&upsig=b8668af052c45782c9cc4baeb0fdfd80&uparams=e,deadline,gen,nbs,oi,os,pla\n" +
+              "tform,trid,uipk&mid=0" //你的视频地址（必填）
           }],
           poster: "", //视频封面图
           width: document.documentElement.clientWidth, // 默认视频全屏时的最大宽度
@@ -138,6 +141,52 @@ export default {
       this.get_chapter_data();
     },
     methods: {
+      addCart(){
+
+        let token = localStorage.token || sessionStorage.token;
+
+        if (token){
+          this.$axios.post(`${this.$settings.Host}/users/verify/`,{
+              token:token,
+            }).then((res)=>{
+
+            this.$axios.post(`${this.$settings.Host}/cart/add_cart/`,{
+                course_id:this.course_id,
+              }).then((res)=>{
+                this.$message.success(res.data.msg);
+                console.log('>>>>>',this.$store)
+                this.$store.commit('add_cart', res.data.cart_length) ;
+                console.log(this.$store.state);
+              })
+
+            }).catch((error)=>{
+
+              this.$confirm('nin hai mei denglu ?', '31s', {
+                confirmButtonText: 'qudenglu',
+                cancelButtonText: '取消',
+                type: 'warning'
+              }).then(() => {
+                this.$router.push('/user/login');
+              })
+              sessionStorage.removeItem('token');
+              sessionStorage.removeItem('username');
+              sessionStorage.removeItem('id');
+              localStorage.removeItem('token');
+              localStorage.removeItem('username');
+              localStorage.removeItem('id');
+            })
+
+        } else {
+          this.$confirm('你还没有登录?', '路飞学城', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+              }).then(() => {
+                this.$router.push('/user/login');
+              })
+        }
+
+      },
 
       get_course_id(){
         this.course_id = this.$route.params.id;
