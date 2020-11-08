@@ -17,12 +17,12 @@
             <h3 class="course-name">{{ course_data.name }}</h3>
             <p class="data">{{course_data.students}}人在学&nbsp;&nbsp;&nbsp;&nbsp;课程总时长：{{course_data.lessons}}&nbsp;&nbsp;&nbsp;&nbsp;难度：{{course_data.level_name}}</p>
             <div class="sale-time">
-              <p class="sale-type">限时免费</p>
-              <p class="expire">距离结束：仅剩 01天 04小时 33分 <span class="second">08</span> 秒</p>
+              <p class="sale-type">{{course_data.discount_name}}</p>
+              <p class="expire">距离结束：仅剩 {{course_data.left_time/60/60/24 | pInt}}天 {{course_data.left_time/60/60 % 24| pInt}}小时 {{course_data.left_time/60 % 60 | pInt}}分 <span class="second">{{course_data.left_time % 60 | pInt}}</span> 秒</p>
             </div>
             <p class="course-price">
               <span>活动价</span>
-              <span class="discount">¥0.00</span>
+              <span class="discount">¥{{course_data.real_price}}</span>
               <span class="original">¥{{course_data.price}}</span>
             </p>
             <div class="buy">
@@ -30,7 +30,7 @@
                 <button class="buy-now">立即购买</button>
                 <button class="free">免费试学</button>
               </div>
-              <div class="add-cart" @click="addCart"><img src="/static/img/cart-yellow.svg" alt="">加入购物车</div>
+              <div class="add-cart"  @click="addCart"><img src="/static/img/cart-yellow.svg" alt="">加入购物车</div>
             </div>
           </div>
         </div>
@@ -108,6 +108,8 @@ export default {
       return {
         tabIndex:1,
         course_id:0,
+        token:'',
+
         course_data:{
           teacher:{}
         },
@@ -123,10 +125,7 @@ export default {
           fluid: true, // 当true时，Video.js player将拥有流体大小。换句话说，它将按比例缩放以适应其容器。
           sources: [{ // 播放资源和资源格式
             type: "video/mp4",
-            src: "http://upos-sz-mirrorkodo.bilivideo.com/upgcxcode/30/17/252781730/252781730-1-80.flv?e=ig8euxZM2rNcNb4ghwdVhoM3hbdVhwdEto8g5X10ugNcXBlqNxHxNEVE5XREto8KqJZHUa6m5J0\n" +
-              "SqE85tZvEuENvNC8xNEVE9EKE9IMvXBvE2ENvNCImNEVEK9GVqJIwqa80WXIekXRE9IMvXBvEuENvNCImNEVEua6m2jIxux0CkF6s2JZv5x0DQJZY2F8SkXKE9IB5QK==&deadline=1604569126&gen=playurl&\n" +
-              "nbs=1&oi=2070943366&os=kodobv&platform=pc&trid=809bdaae0b624cb1a959b436ae13ec95&uipk=5&upsig=b8668af052c45782c9cc4baeb0fdfd80&uparams=e,deadline,gen,nbs,oi,os,pla\n" +
-              "tform,trid,uipk&mid=0" //你的视频地址（必填）
+            src: "http://www.luffyapi.com:8000/media/video/0100257.mp4" //你的视频地址（必填）
           }],
           poster: "", //视频封面图
           width: document.documentElement.clientWidth, // 默认视频全屏时的最大宽度
@@ -140,8 +139,20 @@ export default {
       this.get_course_data();
       this.get_chapter_data();
     },
+    filters:{
+      pInt(val){
+        let a = parseInt(val);
+        if (a < 10){
+          a = `0${a}`;
+        }
+        return a
+      }
+    }
+    ,
     methods: {
+
       addCart(){
+
 
         let token = localStorage.token || sessionStorage.token;
 
@@ -150,9 +161,14 @@ export default {
               token:token,
             }).then((res)=>{
 
+
             this.$axios.post(`${this.$settings.Host}/cart/add_cart/`,{
                 course_id:this.course_id,
-              }).then((res)=>{
+              },{
+              headers:{
+                'Authorization':'jwt ' + token
+              }
+            }).then((res)=>{
                 this.$message.success(res.data.msg);
                 console.log('>>>>>',this.$store)
                 this.$store.commit('add_cart', res.data.cart_length) ;
@@ -161,8 +177,8 @@ export default {
 
             }).catch((error)=>{
 
-              this.$confirm('nin hai mei denglu ?', '31s', {
-                confirmButtonText: 'qudenglu',
+              this.$confirm('你还没有登录', 'luffycity', {
+                confirmButtonText: '登录',
                 cancelButtonText: '取消',
                 type: 'warning'
               }).then(() => {
@@ -176,9 +192,10 @@ export default {
               localStorage.removeItem('id');
             })
 
+
         } else {
-          this.$confirm('你还没有登录?', '路飞学城', {
-                confirmButtonText: '确定',
+          this.$confirm('nin hai mei denglu ?', '31s', {
+                confirmButtonText: 'qudenglu',
                 cancelButtonText: '取消',
                 type: 'warning'
               }).then(() => {
@@ -186,21 +203,28 @@ export default {
               })
         }
 
+
+
       },
 
       get_course_id(){
         this.course_id = this.$route.params.id;
-        // 可以判断course_id的合法性
       },
 
       get_course_data(){
         this.$axios.get(`${this.$settings.Host}/course/detail/${this.course_id}/`)
         .then((res)=>{
-          console.log(res.data);
+          //console.log(res.data);
           this.course_data = res.data;
           this.playerOptions.sources[0].src = res.data.course_video
           this.playerOptions.poster = res.data.course_img
 
+          if (this.course_data.left_time > 0){
+            setInterval(()=>{
+              this.course_data.left_time--;
+
+            },1000)
+            }
 
         })
       },
@@ -211,17 +235,16 @@ export default {
             course:this.course_id,
           }
         }).then((res)=>{
-          console.log(res.data);
           this.chapter_data = res.data
         })
       },
 
 
       onPlayerPlay(e){
-        alert('kai shi');
+        // alert('开始');      //开始播放时候的弹窗
       },
       onPlayerPause(e){
-        alert('zan ting');
+        // alert('暂停');     //暂停播放时候的弹窗
       },
     },
     components:{

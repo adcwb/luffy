@@ -97,8 +97,87 @@ class Course(BaseModel):
         data = self.brief
         server_addr = constants.SERVER_ADDR
         data = data.replace('src="/media', f'class="img_xx" src="{server_addr}/media')
-
         return data
+
+    def activity(self):
+        import datetime
+        now = datetime.datetime.now()
+        activity_list = self.activeprices.filter(is_show=True, is_deleted=False, active__start_time__lte=now,
+                                                 active__end_time__gte=now)
+        return activity_list
+
+    # 优惠类型名称
+    def discount_name(self):
+
+        dis_name = ''
+        a = self.activity()
+        if a:
+            discount_n_list = []
+            for i in a:
+                discount_n = i.discount.discount_type.name
+                discount_n_list.append(discount_n)
+            dis_name = discount_n_list[0]
+
+        return dis_name
+
+    # 真实价格计算
+    def real_price(self):
+        price = float(self.price)
+        r_price = price
+
+        a = self.activity()
+        if a:
+            sale = a[0].discount.sale
+            condition_price = a[0].discount.condition
+            # 限时免费
+            if not sale.strip():
+                r_price = 0
+
+            # 限时折扣  *0.5
+            elif '*' in sale.strip():
+                if price >= condition_price:
+                    _, d = sale.split('*')
+                    r_price = price * float(d)
+            # 限时减免  -100
+            elif sale.strip().startswith('-'):
+                if price >= condition_price:
+                    _, d = sale.split('-')
+                    r_price = price - float(d)
+            # 满减
+            # '''
+            #     满100-10
+            #     满300 - 50
+            #     满600 - 100
+            #     满200-25
+            #
+            # '''
+            elif '满' in sale:
+                if price >= condition_price:
+                    l1 = sale.split('\r\n')
+                    dis_list = []  # 10 50  25
+                    for i in l1:
+                        a, b = i[1:].split('-')
+
+                        # 400
+                        if price >= float(a):
+                            dis_list.append(float(b))
+
+                    max_dis = max(dis_list)
+                    r_price = price - max_dis
+
+        return r_price
+
+    # 活动倒计时时间戳
+    def left_time(self):
+        import datetime
+        now = datetime.datetime.now().timestamp()
+        left_t = 0
+        a = self.activity()
+        if a:
+            end_time = a[0].active.end_time.timestamp()
+            left_t = end_time - now
+
+        return left_t
 
 
 class Teacher(BaseModel):
@@ -202,7 +281,8 @@ class CourseDiscount(BaseModel):
     discount_type = models.ForeignKey("CourseDiscountType", on_delete=models.CASCADE, related_name='coursediscounts',
                                       verbose_name="优惠类型")
     condition = models.IntegerField(blank=True, default=0, verbose_name="满足优惠的价格条件",
-                                    help_text="设置参与优惠的价格门槛，表示商品必须在xx价格以上的时候才参与优惠活动，<br>如果不填，则不设置门槛")  # 因为有的课程不足100，你减免100，还亏钱了
+                                    help_text="设置参与优惠的价格门槛，表示商品必须在xx价格以上的时候才参与优惠活动，<br>如果不填，则不设置门槛")
+    # 因为有的课程不足100，你减免100，还亏钱了
     sale = models.TextField(verbose_name="优惠公式", blank=True, null=True, help_text="""
     不填表示免费；<br>
     *号开头表示折扣价，例如*0.82表示八二折；<br>
@@ -251,4 +331,4 @@ class CoursePriceDiscount(BaseModel):
 
     def __str__(self):
         return "课程：%s，优惠活动: %s,开始时间:%s,结束时间:%s" % (
-        self.course.name, self.active.name, self.active.start_time, self.active.end_time)
+            self.course.name, self.active.name, self.active.start_time, self.active.end_time)

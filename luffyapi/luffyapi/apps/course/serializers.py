@@ -15,13 +15,12 @@ class TeacherModelSerializer(serializers.ModelSerializer):
 
 
 class CourseModelsSerializer(serializers.ModelSerializer):
-
     teacher = TeacherModelSerializer()  # 将外键关联的属性指定为关联表的序列化器对象，就能拿到关联表序列化出来的所有数据，还需要在fields中指定一下，注意，名称必须和外键属性名称相同
 
     class Meta:
         model = models.Course
-        fields = ["id", "name", "course_img", "students", "lessons", "pub_lessons", "price", "teacher",
-                  "get_lessons"]  # teacher外键属性默认拿的是id值
+        fields = ["id", "name", "course_img", "students", "discount_name", "real_price", "lessons", "pub_lessons",
+                  "price", "teacher", "get_lessons", "level_name", "course_video"]  # teacher外键属性默认拿的是id值
 
 
 class CourseDetailModelSerializer(serializers.ModelSerializer):
@@ -30,8 +29,8 @@ class CourseDetailModelSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Course
-        fields = ["id", "name", "course_img", "students", "lessons", "pub_lessons", "price", "teacher",
-                  "level_name", "course_video", 'new_brief']  # teacher外键属性默认拿的是id值
+        fields = ["id", "name", "course_img", "students", "lessons", "discount_name", "real_price", "pub_lessons",
+                  "price", "teacher", "level_name", "course_video", 'new_brief', "left_time"]  # teacher外键属性默认拿的是id值
 
 
 class CourseLessonModelSerializer(serializers.ModelSerializer):

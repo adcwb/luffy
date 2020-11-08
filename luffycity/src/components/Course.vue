@@ -21,7 +21,7 @@
 
           </div>
           <div class="course-info">
-            <h3><router-link :to="'/Course/detail/'+course.id+'/'">{{course.name}}</router-link> <span><img src="/static/img/avatar1.svg" alt="">{{course.students}}人已加入学习</span></h3>
+            <h3><router-link :to="'/course/detail/'+course.id+'/'">{{course.name}}</router-link> <span><img src="/static/img/avatar1.svg" alt="">{{course.students}}人已加入学习</span></h3>
             <p class="teather-info">{{course.teacher.name}} {{course.teacher.signature}} {{course.teacher.title}} <span>共{{course.lessons}}
               课时/{{course.lessons===course.pub_lessons? '更新完成':`已更新${course.pub_lessons}课时`}}</span></p>
             <ul class="lesson-list">
@@ -29,9 +29,9 @@
 
             </ul>
             <div class="pay-box">
-              <span class="discount-type">限时免费</span>
-              <span class="discount-price">￥0.00元</span>
-              <span class="original-price">原价：{{course.price}}元</span>
+              <span class="discount-type" v-if="course.discount_name">{{course.discount_name}}</span>
+              <span class="discount-price">￥{{course.real_price}}元</span>
+              <span class="original-price" v-if="course.discount_name">原价：{{course.price}}元</span>
               <span class="buy-now">立即购买</span>
             </div>
           </div>
@@ -91,19 +91,16 @@
             this.fitlers={}
           }
 
-          //console.log('>>>>>',this.fitlers)
           this.get_course(); //当分类数据发生变化时，出发获取数据的动作
         }
       },
       methods:{
         handleSizeChange(val){
           this.fitlers['size'] = val
-          // console.log(val);
           this.get_course();
         },
         handleCurrentChange(val){
           this.fitlers['page'] = val
-          // console.log(val);
           this.get_course();
         },
 
@@ -111,7 +108,6 @@
         get_categorys(){
           this.$axios.get(`${this.$settings.Host}/course/categorys/`)
         .then((res)=>{
-          //console.log(res.data);
           this.category_list = res.data;
         })
         },
@@ -124,7 +120,6 @@
             params:this.fitlers,
           })
           .then((res)=>{
-            //console.log(res.data);
             this.total = res.data.count
             this.course_list = res.data.results;
           })

@@ -5,7 +5,6 @@ from rest_framework.generics import ListAPIView, RetrieveAPIView
 from .serializers import CourseCategoryModelSerializer, CourseModelsSerializer, CourseDetailModelSerializer, \
     CourseChapterModelSerializer
 
-from rest_framework.generics import ListAPIView
 from .pagenations import StandardPageNumberPagination
 
 

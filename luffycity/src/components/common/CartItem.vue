@@ -1,21 +1,25 @@
 <template>
     <div class="cart_item">
       <div class="cart_column column_1">
-        <el-checkbox class="my_el_checkbox" v-model="checked"></el-checkbox>
+
+        <el-checkbox class="my_el_checkbox" v-model="cart.selected"></el-checkbox>
+
       </div>
       <div class="cart_column column_2">
-        <img src="/static/img/course-cover.jpeg" alt="">
-        <span><router-link to="/course/detail/1">爬虫从入门到进阶</router-link></span>
+
+        <img :src="cart.course_img" alt="">
+        <span><router-link to="/course/detail/1">{{cart.name}}</router-link></span>
+
       </div>
       <div class="cart_column column_3">
-        <el-select v-model="expire" size="mini" placeholder="请选择购买有效期" class="my_el_select">
+        <el-select v-model="cart.expire_id" size="mini" placeholder="请选择购买有效期" class="my_el_select">
           <el-option label="1个月有效" value="30" key="30"></el-option>
           <el-option label="2个月有效" value="60" key="60"></el-option>
           <el-option label="3个月有效" value="90" key="90"></el-option>
-          <el-option label="永久有效" value="10000" key="10000"></el-option>
+          <el-option label="永久有效" value="0" key="0"></el-option>
         </el-select>
       </div>
-      <div class="cart_column column_4">¥499.0</div>
+      <div class="cart_column column_4">¥{{cart.real_price}}</div>
       <div class="cart_column column_4">删除</div>
     </div>
 </template>
@@ -25,12 +29,54 @@ export default {
     name: "CartItem",
     data(){
       return {
-        checked:false,
-        expire: "1个月有效",
+        // checked:false,
+
       }
+    },
+    props:['cart', ],
+    watch:{
+
+      'cart.selected':function (){
+        // 添加选中
+        let token = localStorage.token || sessionStorage.token;
+        if (this.cart.selected){
+          this.$axios.patch(`${this.$settings.Host}/cart/add_cart/`,{
+            course_id: this.cart.course_id,
+
+          },{
+            headers:{
+              'Authorization':'jwt ' + token
+            }
+          }).then((res)=>{
+            this.$message.success(res.data.msg);
+            this.$emit('cal_t_p')
+          }).catch((error)=>{
+            this.$message.error(res.data.msg);
+          })
+        }
+        else {
+          // 取消选中
+          this.$axios.put(`${this.$settings.Host}/cart/add_cart/`,{
+            course_id: this.cart.course_id,
+
+          },{
+            headers:{
+              'Authorization':'jwt ' + token
+            }
+          }).then((res)=>{
+            this.$message.success(res.data.msg);
+            this.$emit('cal_t_p')
+          }).catch((error)=>{
+            this.$message.error(res.data.msg);
+          })
+        }
+      },
+
+
     }
 }
 </script>
+
 
 <style scoped>
   /*.cart_item{*/

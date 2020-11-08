@@ -204,6 +204,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ),
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
 }
 
 # 配置JWT JWT_EXPIRATION_DELTA 指明token的有效期
@@ -243,7 +244,7 @@ TIME_ZONE = 'Asia/Shanghai'
 # TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
-USE_TZ = True
+USE_TZ = False
 
 # 腾讯防水墙配置
 TENCENT_CAPTCHA = {

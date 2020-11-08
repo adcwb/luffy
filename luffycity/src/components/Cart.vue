@@ -15,14 +15,14 @@
             <span class="do_more">操作</span>
           </div>
           <div class="cart_course_list">
-            <CartItem v-for="(value,index) in cart_data_list" :key="index" :cart="value"></CartItem>
+            <CartItem v-for="(value,index) in cart_data_list" :key="index" :cart="value" @cal_t_p="cal_total_price"></CartItem>
 
           </div>
           <div class="cart_footer_row">
             <span class="cart_select"><label> <el-checkbox v-model="checked"></el-checkbox><span>全选</span></label></span>
             <span class="cart_delete"><i class="el-icon-delete"></i> <span>删除</span></span>
             <span class="goto_pay">去结算</span>
-            <span class="cart_total">总计：¥0.0</span>
+            <span class="cart_total">总计：¥{{total_price}}</span>
           </div>
         </div>
       </div>
@@ -39,17 +39,32 @@ export default {
     data(){
       return {
         checked: false,
+        total_price:0,
         cart_data_list:[],
       }
     },
     methods:{
+      cal_total_price(){
+        let t_price = 0
+        this.cart_data_list.forEach((v,k)=>{
+          if (v.selected){
+            t_price += v.real_price
+          }
+        })
+        console.log('total_price>>>>',t_price)
+        this.total_price = t_price
 
+      }
     },
   created() {
     let token = sessionStorage.token || localStorage.token;
     if (token){
 
-      this.$axios.get(`${this.$settings.Host}/cart/add_cart/`)
+      this.$axios.get(`${this.$settings.Host}/cart/add_cart/`,{
+         headers:{
+                'Authorization':'jwt ' + token
+              }
+      })
       .then((res)=>{
         this.cart_data_list = res.data.cart_data_list
       })

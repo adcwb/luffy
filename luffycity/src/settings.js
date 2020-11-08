@@ -3,15 +3,27 @@ export default {
   check_login(ths){
     let token = localStorage.token || sessionStorage.token;
 
-    ths.$axios.post(`${this.Host}/users/verify/`,{
-      token:token,
-    }).then((res)=>{
+    if (token){
 
-      ths.token = token;
+        ths.$axios.post(`${this.Host}/users/verify/`,{
+            token:token,
+          }).then((res)=>{
 
-    }).catch((error)=>{
-      ths.token = false;
-    })
+            ths.token = token;
+          }).catch((error)=>{
+            ths.token = false;
+            sessionStorage.removeItem('token');
+            sessionStorage.removeItem('username');
+            sessionStorage.removeItem('id');
+            localStorage.removeItem('token');
+            localStorage.removeItem('username');
+            localStorage.removeItem('id');
+          })
+
+
+      } else {
+        ths.token = false
+      }
 
   }
 }
