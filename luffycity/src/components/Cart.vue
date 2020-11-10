@@ -15,13 +15,13 @@
             <span class="do_more">操作</span>
           </div>
           <div class="cart_course_list">
-            <CartItem v-for="(value,index) in cart_data_list" :key="index" :cart="value" @cal_t_p="cal_total_price"></CartItem>
+            <CartItem v-for="(value,index) in cart_data_list" :key="index" :cart="value" @cal_t_p="cal_total_price" @change_expire_handler="cal_total_price"  @delete_course_handler="delete_c(index)"></CartItem>
 
           </div>
           <div class="cart_footer_row">
             <span class="cart_select"><label> <el-checkbox v-model="checked"></el-checkbox><span>全选</span></label></span>
             <span class="cart_delete"><i class="el-icon-delete"></i> <span>删除</span></span>
-            <span class="goto_pay">去结算</span>
+            <span class="goto_pay"><router-link to="/order/">去结算</router-link></span>
             <span class="cart_total">总计：¥{{total_price}}</span>
           </div>
         </div>
@@ -54,6 +54,10 @@ export default {
         console.log('total_price>>>>',t_price)
         this.total_price = t_price
 
+      },
+      delete_c(index){
+        this.cart_data_list.splice(index,1)
+        this.cal_total_price()
       }
     },
   created() {

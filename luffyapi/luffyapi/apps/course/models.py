@@ -64,7 +64,8 @@ class Course(BaseModel):
     pub_lessons = models.IntegerField(verbose_name="课时更新数量", default=0)
 
     # 课程原价
-    price = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="课程原价", default=0)
+    price = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="课程原价", default=0,
+                                help_text='如果填写的价格为0，那么表示当前课程在购买的时候，没有永久有效的期限。')
     teacher = models.ForeignKey("Teacher", on_delete=models.DO_NOTHING, null=True, blank=True, verbose_name="授课老师")
 
     class Meta:
@@ -121,10 +122,15 @@ class Course(BaseModel):
         return dis_name
 
     # 真实价格计算
-    def real_price(self):
+    def real_price(self,expire_id=0):
         price = float(self.price)
-        r_price = price
 
+
+        if expire_id > 0:
+            expire_obj = self.course_expire.get(id=expire_id)
+            price = float(expire_obj.price)
+
+        r_price = price
         a = self.activity()
         if a:
             sale = a[0].discount.sale
@@ -154,11 +160,11 @@ class Course(BaseModel):
             elif '满' in sale:
                 if price >= condition_price:
                     l1 = sale.split('\r\n')
-                    dis_list = []  # 10 50  25
+                    dis_list = []  #10 50  25
                     for i in l1:
                         a, b = i[1:].split('-')
 
-                        # 400
+                        #400
                         if price >= float(a):
                             dis_list.append(float(b))
 
@@ -178,6 +184,27 @@ class Course(BaseModel):
             left_t = end_time - now
 
         return left_t
+
+    # 获取课程有效期
+    def get_expire(self):
+        expire_list = self.course_expire.all()
+        data = []
+        for expire in expire_list:
+            data.append({
+                'id': expire.id,
+                'expire_text': expire.expire_text,
+                'price': expire.price,
+            })
+
+        # 当价格为0时，没有永久有效这一项，其他的都有
+        if self.price > 0:
+            data.append({
+                'id': 0,
+                'expire_text': '永久有效',
+                'price': self.price,
+            })
+
+        return data
 
 
 class Teacher(BaseModel):
@@ -332,3 +359,25 @@ class CoursePriceDiscount(BaseModel):
     def __str__(self):
         return "课程：%s，优惠活动: %s,开始时间:%s,结束时间:%s" % (
             self.course.name, self.active.name, self.active.start_time, self.active.end_time)
+
+
+class CourseExpire(BaseModel):
+    """课程有效期模型"""
+    # 后面可以在数据库把course和expire_time字段设置为联合索引
+    course = models.ForeignKey("Course", related_name='course_expire', on_delete=models.CASCADE, verbose_name="课程名称")
+
+    # 有效期限，天数
+    expire_time = models.IntegerField(verbose_name="有效期", null=True, blank=True, help_text="有效期按天数计算")
+
+    # 一个月有效等等
+    expire_text = models.CharField(max_length=150, verbose_name="提示文本", null=True, blank=True)
+    # 每个有效期的价格
+    price = models.DecimalField(max_digits=6, decimal_places=2, verbose_name="课程价格", default=0)
+
+    class Meta:
+        db_table = "ly_course_expire"
+        verbose_name = "课程有效期"
+        verbose_name_plural = verbose_name
+
+    def __str__(self):
+        return "课程：%s，有效期：%s，价格：%s" % (self.course, self.expire_text, self.price)

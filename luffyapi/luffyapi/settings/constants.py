@@ -6,7 +6,6 @@ HEADER_NAV_LENGTH = 5
 # 脚部导航的数量
 FOOTER_NAV_LENGTH = 5
 
-
 # 短信有效时间
 SMS_CODE_EXPIRE_TIME = 60 * 10
 # 短信间隔时间

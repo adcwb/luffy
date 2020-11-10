@@ -19,7 +19,6 @@ class AddCartView(ViewSet):
     def add(self, request):
 
         course_id = request.data.get('course_id')
-        # user_id = 1
         user_id = request.user.id
 
         expire = 0  # 表示永久有效
@@ -73,8 +72,9 @@ class AddCartView(ViewSet):
         try:
             for cid, eid in ret.items():
                 course_id = cid.decode('utf-8')
-                expire_id = eid.decode('utf-8')
-
+                # expire_id = int(eid.decode('utf-8'))
+                conn.hset('cart_%s' % user_id, course_id, 0)  # 刷新页面后重置为永久有效
+                expire_id = 0
                 course_obj = models.Course.objects.get(id=course_id)
 
                 cart_data_list.append({
@@ -84,14 +84,12 @@ class AddCartView(ViewSet):
                     'price': course_obj.price,
                     'real_price': course_obj.real_price(),
                     'expire_id': expire_id,
+                    'expire_list': course_obj.get_expire(),
                     'selected': False,  # 默认没有勾选
                 })
         except Exception:
             logger.error('获取购物车数据失败')
             return Response({'msg': '后台数据库出问题了,请联系管理员'}, status=status.HTTP_507_INSUFFICIENT_STORAGE)
-            # try:
-        #     models.Course.objects.filter()
-        # print(cart_data_list)
 
         return Response({'msg': 'xxx', 'cart_data_list': cart_data_list})
 
@@ -122,3 +120,81 @@ class AddCartView(ViewSet):
         conn.srem('selected_cart_%s' % user_id, course_id)
 
         return Response({'msg': '恭喜你！少花钱了，但是你真的不学习了吗！'})
+
+    # 切换有效期
+    def change_expire(self, request):
+
+        user_id = request.user.id
+        course_id = request.data.get('course_id')
+        expire_id = request.data.get('expire_id')
+
+        try:
+            course_obj = models.Course.objects.get(id=course_id)
+        except:
+
+            return Response({'msg': '课程不存在'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            if expire_id > 0:
+                expire_object = models.CourseExpire.objects.get(id=expire_id)
+        except:
+
+            return Response({'msg': '课程有效期不存在'}, status=status.HTTP_400_BAD_REQUEST)
+
+        real_price = course_obj.real_price(expire_id)
+
+        conn = get_redis_connection('cart')
+        conn.hset('cart_%s' % user_id, course_id, expire_id)
+
+        return Response({'msg': '切换成功！', 'real_price': real_price})
+
+    # 删除购物车数据
+    def delete_course(self, request):
+        user_id = request.user.id
+        course_id = request.query_params.get('course_id')
+        conn = get_redis_connection('cart')
+        pipe = conn.pipeline()
+
+        pipe.hdel('cart_%s' % user_id, course_id)
+        pipe.srem('selected_cart_%s' % user_id, course_id)
+
+        pipe.execute()
+
+        return Response({'msg': '删除成功'})
+
+    def show_pay_info(self, request):
+        user_id = request.user.id
+        conn = get_redis_connection('cart')
+        select_list = conn.smembers('selected_cart_%s' % user_id)
+        data = []
+
+        ret = conn.hgetall('cart_%s' % user_id)  # dict {b'1': b'0', b'2': b'0'}
+
+        # print(ret)
+
+        for cid, eid in ret.items():
+            expire_id = int(eid.decode('utf-8'))
+            if cid in select_list:
+
+                course_id = int(cid.decode('utf-8'))
+                course_obj = models.Course.objects.get(id=course_id)
+
+                if expire_id > 0:
+                    expire_obj = models.CourseExpire.objects.get(id=expire_id)
+                    data.append({
+                        'course_id': course_obj.id,
+                        'name': course_obj.name,
+                        'course_img': constants.SERVER_ADDR + course_obj.course_img.url,
+                        'real_price': course_obj.real_price(expire_id),
+                        'expire_text': expire_obj.expire_text,
+                    })
+                else:
+                    data.append({
+                        'course_id': course_obj.id,
+                        'name': course_obj.name,
+                        'course_img': constants.SERVER_ADDR + course_obj.course_img.url,
+                        'real_price': course_obj.real_price(expire_id),
+                        'expire_text': '永久有效',
+                    })
+
+        return Response({'data': data})
