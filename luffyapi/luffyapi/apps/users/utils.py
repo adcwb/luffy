@@ -4,15 +4,17 @@ from urllib.request import urlopen
 
 import requests
 from django.conf import settings
+from luffyapi.settings import constants
 
 
 def jwt_response_payload_handler(token, user=None, request=None):
-    # print('>>>>>',user,type(user))
 
     return {
         'token': token,
         'username': "root",
-        'id': 1
+        'id': 1,
+        'credit': user.credit,
+        'credit_to_money': constants.CREDIT_MONEY,
     }
 
 
@@ -44,7 +46,7 @@ class CustomeModelBackend(ModelBackend):
 
     '''
 
-    def authenticate(self, request, username=None, password=None,**kwargs):
+    def authenticate(self, request, username=None, password=None, **kwargs):
         try:
             user_obj = get_user_obj(username)
             if kwargs.get('ticket'):

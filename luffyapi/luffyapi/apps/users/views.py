@@ -43,7 +43,7 @@ class CheckPhoneNumber(APIView):
 
 class RegisterView(CreateAPIView):
     queryset = models.User.objects.all()
-    print(queryset)
+    # print(queryset)
     serializer_class = RegisterModelSerializer
 
 

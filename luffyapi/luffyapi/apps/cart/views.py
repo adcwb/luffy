@@ -19,6 +19,7 @@ class AddCartView(ViewSet):
     def add(self, request):
 
         course_id = request.data.get('course_id')
+        # user_id = 1
         user_id = request.user.id
 
         expire = 0  # 表示永久有效
@@ -73,7 +74,7 @@ class AddCartView(ViewSet):
             for cid, eid in ret.items():
                 course_id = cid.decode('utf-8')
                 # expire_id = int(eid.decode('utf-8'))
-                conn.hset('cart_%s' % user_id, course_id, 0)  # 刷新页面后重置为永久有效
+                conn.hset('cart_%s' % user_id, course_id, 0)
                 expire_id = 0
                 course_obj = models.Course.objects.get(id=course_id)
 
@@ -90,6 +91,9 @@ class AddCartView(ViewSet):
         except Exception:
             logger.error('获取购物车数据失败')
             return Response({'msg': '后台数据库出问题了,请联系管理员'}, status=status.HTTP_507_INSUFFICIENT_STORAGE)
+            # try:
+        #     models.Course.objects.filter()
+        # print(cart_data_list)
 
         return Response({'msg': 'xxx', 'cart_data_list': cart_data_list})
 
@@ -152,6 +156,7 @@ class AddCartView(ViewSet):
     def delete_course(self, request):
         user_id = request.user.id
         course_id = request.query_params.get('course_id')
+        print('course_id>>>', course_id)
         conn = get_redis_connection('cart')
         pipe = conn.pipeline()
 
@@ -162,6 +167,7 @@ class AddCartView(ViewSet):
 
         return Response({'msg': '删除成功'})
 
+    # 结算页面数据
     def show_pay_info(self, request):
         user_id = request.user.id
         conn = get_redis_connection('cart')
@@ -171,7 +177,8 @@ class AddCartView(ViewSet):
         ret = conn.hgetall('cart_%s' % user_id)  # dict {b'1': b'0', b'2': b'0'}
 
         # print(ret)
-
+        total_price = 0
+        total_real_price = 0
         for cid, eid in ret.items():
             expire_id = int(eid.decode('utf-8'))
             if cid in select_list:
@@ -181,20 +188,24 @@ class AddCartView(ViewSet):
 
                 if expire_id > 0:
                     expire_obj = models.CourseExpire.objects.get(id=expire_id)
+                    course_real_price = course_obj.real_price(expire_id)
+                    total_real_price += course_real_price
                     data.append({
                         'course_id': course_obj.id,
                         'name': course_obj.name,
                         'course_img': constants.SERVER_ADDR + course_obj.course_img.url,
-                        'real_price': course_obj.real_price(expire_id),
+                        'real_price': course_real_price,
                         'expire_text': expire_obj.expire_text,
                     })
                 else:
+                    course_real_price = course_obj.real_price(expire_id)
+                    total_real_price += course_real_price
                     data.append({
                         'course_id': course_obj.id,
                         'name': course_obj.name,
                         'course_img': constants.SERVER_ADDR + course_obj.course_img.url,
-                        'real_price': course_obj.real_price(expire_id),
+                        'real_price': course_real_price,
                         'expire_text': '永久有效',
                     })
 
-        return Response({'data': data})
+        return Response({'data': data, 'total_real_price': total_real_price})

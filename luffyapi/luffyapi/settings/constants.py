@@ -13,3 +13,6 @@ SMS_CODE_INTERVAL_TIME = 60
 
 # server address
 SERVER_ADDR = 'http://www.luffyapi.com:8000'
+
+# 积分和现金的兑换比例[兑换1元的积分数量]
+CREDIT_MONEY = 10

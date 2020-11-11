@@ -108,17 +108,24 @@ export default {
               localStorage.token = res.data.token;
               localStorage.username = res.data.username;
               localStorage.id = res.data.id;
+              localStorage.credit = res.data.credit;
+              localStorage.credit_to_money = res.data.credit_to_money;
               sessionStorage.removeItem('token');
               sessionStorage.removeItem('username');
               sessionStorage.removeItem('id');
-
+              sessionStorage.removeItem('credit');
+              sessionStorage.removeItem('credit_to_money');
             }else {
               sessionStorage.token = res.data.token;
               sessionStorage.username = res.data.username;
               sessionStorage.id = res.data.id;
+              sessionStorage.credit = res.data.credit;
+              sessionStorage.credit_to_money = res.data.credit_to_money;
               localStorage.removeItem('token');
               localStorage.removeItem('username');
               localStorage.removeItem('id');
+              localStorage.removeItem('credit');
+              localStorage.removeItem('credit_to_money');
             }
 
             this.$confirm('下一步想去哪消费！', '提示', {
