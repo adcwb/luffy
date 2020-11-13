@@ -71,9 +71,11 @@
                              alt="">
                       </li>
                       <li>
-                        我的订单
+                         <router-link to="/myorder/">
+                          我的订单
                         <img src="https://hcdn2.luffycity.com/media/frontend/activity/back_1568185800.821227.svg"
                              alt="">
+                        </router-link>
                       </li>
                       <li>
                         贝里小卖铺

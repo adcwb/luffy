@@ -2,10 +2,10 @@ from django.db import models
 
 # Create your models here.
 
-
+from luffyapi.settings import constants
 from luffyapi.utils.models import BaseModel
 from users.models import User
-from course.models import Course
+from course.models import Course, CourseExpire
 
 
 class Order(BaseModel):
@@ -39,6 +39,70 @@ class Order(BaseModel):
 
     def __str__(self):
         return "%s,总价: %s,实付: %s" % (self.order_title, self.total_price, self.real_price)
+
+    def order_detail_data(self):
+        order_detail_objs = self.order_courses.all()
+        data_list = [
+
+        ]
+
+        for order_detail in order_detail_objs:
+            expire_id = order_detail.expire
+            if expire_id > 0:
+                expire_obj = CourseExpire.objects.get(id=expire_id)
+                expire_text = expire_obj.expire_text
+            else:
+                expire_text = '永久有效'
+
+            order_dict = {
+                'course_img': constants.SERVER_ADDR + order_detail.course.course_img.url,
+                'course_name': order_detail.course.name,
+                'expire_text': expire_text,
+                'price': order_detail.price,
+                'real_price': self.real_price,
+                'discount_name': order_detail.discount_name,
+
+            }
+            data_list.append(order_dict)
+
+        return data_list
+
+
+# '''
+# order_dict:[
+#     {
+#         订单id:'xxx',
+#         订单号：'xxxx',
+#         course_list:[
+#             {
+#                 'course_id':1,
+#                 'course_name':'flask框架'
+#             },
+#             {
+#                 'course_id':1,
+#                 'course_name':'flask框架'
+#             },
+#         ]
+#     },
+#     {
+#         订单id:'xxx',
+#         订单号：'xxxx',
+#         course_list:[
+#             {
+#                 'course_id':1,
+#                 'course_name':'flask框架'
+#             },
+#             {
+#                 'course_id':1,
+#                 'course_name':'flask框架'
+#             },
+#         ]
+#     }
+#
+#
+# ]
+#
+# '''
 
 
 class OrderDetail(BaseModel):

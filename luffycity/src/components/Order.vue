@@ -70,7 +70,7 @@
                 <span class="alipay wechat"  @click="pay_type=1" v-else><img src="../../static/img/wechat.png" alt=""></span>
 
               </el-col>
-              <el-col :span="8" class="count">实付款： <span>¥{{ (total_price - num / credit_to_money).toFixed(2)}}</span></el-col>
+              <el-col :span="8" class="count">实付款： <span>¥{{ (total_price - num/credit_to_money).toFixed(2)}}</span></el-col>
               <el-col :span="4" class="cart-pay"><span @click="payhander">支付</span></el-col>
             </el-row>
         </div>
@@ -103,19 +103,17 @@
         coupon_number:0,    // 优惠券抵扣
 
 
-
-
       }
     },
     components:{
       Vheader,
       Footer,
     },
-
     watch:{
       use_coupon(){
         if (this.use_coupon === false){
           this.current_coupon = 0;
+
         }
       },
 
@@ -139,6 +137,8 @@
         }else {
           return parseFloat(this.credit)
         }
+
+
       },
 
       get_credit(){
@@ -151,8 +151,8 @@
           this.num = 0
         }
         console.log(value);
-      },
 
+      },
       cal_total_price(){
         if (this.current_coupon !== 0){
 
@@ -171,8 +171,6 @@
         }
 
       },
-
-
 
 
       // 记录切换的couponid
@@ -195,6 +193,7 @@
       },
 
       select_coupon(index,coupon_id){
+
         let current_c = this.coupon_list[index]
         if (this.total_real_price < current_c.coupon.condition){
           return 'disable'
@@ -244,6 +243,7 @@
 
       // 支付
       payhander(){
+        console.log(this.current_coupon)
         let token = localStorage.token || sessionStorage.token;
         this.$axios.post(`${this.$settings.Host}/order/add_money/`,{
               "pay_type":this.pay_type,
@@ -257,8 +257,12 @@
         }).then((res)=>{
           this.$message.success('订单已经生成，马上跳转支付页面')
           let order_number = res.data.order_number
-
-          this.$axios.get(`${this.$settings.Host}/payment/alipay/?order_number=${order_number}`)
+          let token = localStorage.token || sessionStorage.token;
+          this.$axios.get(`${this.$settings.Host}/payments/alipay/?order_number=${order_number}`,{
+            headers:{
+              'Authorization':'jwt ' + token
+            }
+          })
             .then((res)=>{
               // res.data :  alipay.trade...?a=1&b=2....
               location.href = res.data.url;

@@ -1,17 +1,17 @@
+import re
+
 from rest_framework_jwt.serializers import JSONWebTokenSerializer
 from rest_framework import serializers
 from rest_framework_jwt.compat import get_username_field, PasswordField
 from django.utils.translation import ugettext as _
 from django.contrib.auth import authenticate, get_user_model
 from rest_framework_jwt.settings import api_settings
-
 from . import models
 from django.contrib.auth.hashers import make_password
-from .utils import get_user_obj
-import re
 from django_redis import get_redis_connection
+from order.models import Order
+from .utils import get_user_obj
 
-#
 User = get_user_model()
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -39,7 +39,6 @@ class CustomeSerializer(JSONWebTokenSerializer):
             'password': attrs.get('password'),
             'ticket': attrs.get('ticket'),
             'randstr': attrs.get('randstr'),
-
         }
         # {'username':'root',password:'123'}
 
@@ -83,6 +82,7 @@ class RegisterModelSerializer(serializers.ModelSerializer):
     # 校验密码和确认密码
     def validate(self, attrs):
         # 校验手机号
+        print('>>>>>', attrs)
         phone_number = attrs.get('phone')
         sms = attrs.get('sms')
         if not re.match('^1[3-9][0-9]{9}$', phone_number):
@@ -98,7 +98,7 @@ class RegisterModelSerializer(serializers.ModelSerializer):
 
         # todo  校验验证码
         conn = get_redis_connection('sms_code')
-        ret = conn.get('mobile_%s'%phone_number)
+        ret = conn.get('mobile_%s' % phone_number)
         if not ret:
             raise serializers.ValidationError('验证码已失效')
         if ret.decode() != sms:
@@ -113,21 +113,25 @@ class RegisterModelSerializer(serializers.ModelSerializer):
         # 密码加密
         hash_password = make_password(validated_data['password'])
         validated_data['password'] = hash_password
-        # validated_data['username'] = 'user_{}'.format(validated_data['phone'])
-        # 数据库在传参的时候，因为username字段不允许为空，而前端又没有传值，所以会报错，因此在序列化的时候要加上
+
         validated_data['username'] = validated_data.get('phone')
-        #
+
         user = models.User.objects.create(
             **validated_data
         )
-
 
         jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
         jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
         payload = jwt_payload_handler(user)
-        user.token = jwt_encode_handler(payload)
+        token = jwt_encode_handler(payload)
 
-
+        user.token = token
 
         return user
+
+
+class MyOrderModelSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['id', 'order_number', 'pay_time', 'get_order_status_display', 'order_detail_data']

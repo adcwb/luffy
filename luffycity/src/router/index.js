@@ -7,6 +7,8 @@ import Course from '@/components/Course'
 import Detail from '@/components/Detail'
 import Cart from "@/components/Cart"
 import Order from "@/components/Order"
+import Success from "@/components/Success"
+import Myorder from '@/components/Myorder'
 
 Vue.use(Router)
 
@@ -49,5 +51,15 @@ export default new Router({
       name: 'Order',
       component: Order
     },
+    {
+      path: '/payments/result/',
+      name: 'Success',
+      component: Success
+    },
+    {
+      path: '/myorder/',
+      component: Myorder
+    },
+
   ]
 })

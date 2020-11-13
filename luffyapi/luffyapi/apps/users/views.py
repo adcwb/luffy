@@ -9,15 +9,21 @@ from rest_framework.response import Response
 # Create your views here.
 from rest_framework_jwt.views import ObtainJSONWebToken
 from rest_framework import status
-from .serializers import CustomeSerializer, RegisterModelSerializer
+from .serializers import CustomeSerializer, RegisterModelSerializer, MyOrderModelSerializer
 from .utils import get_user_obj
 from . import models
 from luffyapi.settings import constants
+from rest_framework.generics import ListAPIView
+from order.models import Order
+from rest_framework.permissions import IsAuthenticated
 
 
-# Create your views here.
+class MyOrderView(ListAPIView):
+    permission_classes = [IsAuthenticated, ]
+    serializer_class = MyOrderModelSerializer
 
-# from luffyapi.apps.users.serializers import CustomeSerializer
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user)
 
 
 class CustomLoginView(ObtainJSONWebToken):

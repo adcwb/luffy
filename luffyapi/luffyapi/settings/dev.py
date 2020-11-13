@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'cart',  # app cart注册
     'order',  # app order注册
     'coupon',  # app coupon注册
+    'payments',  # app payments注册
 
     'ckeditor',  # 富文本编辑器
     'ckeditor_uploader',  # 富文本编辑器上传图片模块
@@ -260,6 +261,21 @@ TENCENT_CAPTCHA = {
 SMS_INFO = {
     'AccessKeyId': 'LTAI4G9wKSbTB5dyDYhGNRLV',
     'AccessKeySecret': 'zUGaBxFzrWyHv2bE6oIbvit3vnzuGl',
+}
+
+
+# 支付宝配置信息
+ALIAPY_CONFIG = {
+    # "gateway_url": "https://openapi.alipay.com/gateway.do?", # 真实支付宝网关地址
+    "gateway_url": "https://openapi.alipaydev.com/gateway.do?",  # 沙箱支付宝网关地址
+    "appid": "2016102600767166",  # 沙箱中那个应用id
+    "app_notify_url": None,
+    "app_private_key_path": os.path.join(BASE_DIR, "apps/payments/keys/app_private_key.pem"),
+    "alipay_public_key_path": os.path.join(BASE_DIR, "apps/payments/keys/alipay_public_key.pem"),
+    "sign_type": "RSA2",
+    "debug": False,
+    "return_url": "http://www.luffycity.com:8080/payments/result",  # 同步回调地址
+    "notify_url": "http://www.luffycity.com:8000/payments/result/",  # 异步结果通知
 }
 
 # 设置redis缓存

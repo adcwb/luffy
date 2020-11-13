@@ -6,5 +6,6 @@ urlpatterns = [
     path(r'verify/', verify_jwt_token),    # 验证token值的
     path(r'check_phone/', views.CheckPhoneNumber.as_view()),
     path(r'register/', views.RegisterView.as_view()),
+    path(r'myorder/', views.MyOrderView.as_view()),
     re_path(r'sms_code/(?P<phone>1[3-9][0-9]{9})/', views.GetSMSCodeView.as_view()),
 ]
