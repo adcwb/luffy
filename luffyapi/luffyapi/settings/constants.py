@@ -16,3 +16,6 @@ SERVER_ADDR = 'http://www.luffyapi.com:8000'
 
 # 积分和现金的兑换比例[兑换1元的积分数量]
 CREDIT_MONEY = 10
+
+# 订单超时时间间隔,单位秒数
+ORDER_EXPIRE_TIME = 60

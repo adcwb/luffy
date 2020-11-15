@@ -6,6 +6,12 @@ from .serializers import CourseCategoryModelSerializer, CourseModelsSerializer, 
     CourseChapterModelSerializer
 
 from .pagenations import StandardPageNumberPagination
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.conf import settings
+
+from luffyapi.libs.polyv import PolyvPlayer
+from rest_framework.permissions import IsAuthenticated
 
 
 class CategoryView(ListAPIView):
@@ -40,3 +46,20 @@ class ChapterView(ListAPIView):
     filter_backends = [DjangoFilterBackend, ]
     filter_fields = ('course',)
     # /chapter/?course=1
+
+
+class PolyvView(APIView):
+    # vid = '348e998797383060cb19620b1c600203_3'
+    permission_classes = [IsAuthenticated, ]
+
+    def get(self, request):
+        polyv_obj = PolyvPlayer(settings.POLYV_CONF['userid'], settings.POLYV_CONF['secretKey'],
+                                settings.POLYV_CONF['tokenUrl'])
+        vid = request.query_params.get('vid')
+        viewerIp = request.META.get('REMOTE_ADDR')
+        viewerId = request.user.id
+        viewerName = request.user.username
+
+        token_dict = polyv_obj.get_video_token(vid, viewerIp, viewerId, viewerName)
+
+        return Response(token_dict)

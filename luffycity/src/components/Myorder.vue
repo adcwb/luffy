@@ -47,8 +47,8 @@
                   <li class="order-do">
                     <span class="btn btn2" v-if="order_obj.get_order_status_display==='已支付'">去学习</span>
                     <span class="btn btn2" v-else-if="order_obj.get_order_status_display==='未支付'" @click="go_pay(order_obj.order_number)">去付款</span>
-                    <span class="btn btn2" v-else-if="order_obj.get_order_status_display==='超时取消'">超时取消</span>
-                    <span class="btn btn2" v-else>已取消</span>
+<!--                    <span class="btn btn2" v-else-if="order_obj.get_order_status_display==='超时取消'">超时取消</span>-->
+<!--                    <span class="btn btn2" v-else>已取消</span>-->
                   </li>
                 </ul>
               </div>

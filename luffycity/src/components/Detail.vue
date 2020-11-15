@@ -60,7 +60,7 @@
                   <li class="lesson-item" v-for="(lesson,lesson_index) in chapter.coursesections">
                     <p class="name"><span class="index">{{chapter.chapter}}-{{lesson.lesson}}</span> 课程介绍-{{lesson.name}}<span v-show="lesson.free_trail" class="free">免费</span></p>
                     <p class="time">{{lesson.duration}} <img src="/static/img/chapter-player.svg"></p>
-                    <button class="try" v-if="lesson.free_trail">立即试学</button>
+                    <button class="try" v-if="lesson.free_trail"><router-link :to="'/polyv/player/'+lesson.section_link">立即学习</router-link></button>
                     <button class="try" v-else>立即buy</button>
                   </li>
 

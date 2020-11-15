@@ -9,6 +9,7 @@ import Cart from "@/components/Cart"
 import Order from "@/components/Order"
 import Success from "@/components/Success"
 import Myorder from '@/components/Myorder'
+import Player from '@/components/Player'
 
 Vue.use(Router)
 
@@ -60,6 +61,9 @@ export default new Router({
       path: '/myorder/',
       component: Myorder
     },
-
+    {
+      path: '/polyv/player/:vid',   // /course/detail/1/   this.$route.params.vid
+      component: Player
+    },
   ]
 })
