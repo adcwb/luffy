@@ -1,5 +1,5 @@
 export default {
-  Host:"http://www.luffyapi.com:8000",
+  Host:"http://api.adcwb.com:8000",
   check_login(ths){
     let token = localStorage.token || sessionStorage.token;
 

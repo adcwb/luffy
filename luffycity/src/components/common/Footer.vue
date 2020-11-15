@@ -9,16 +9,16 @@
             <span>贝里小卖铺</span>
           </p>
           <p>
-            地址：北京市昌平区顺沙路八号院汇德商厦402  邮箱：customer@luffycity.com
+            地址：北京市昌平区顺沙路八号院汇德商厦402  邮箱：admin@adcwb.com
           </p>
           <p>
              © 2017-2020 北京路飞学城教育科技有限公司版权所有
-            <a class="copyright" href="http://beian.miit.gov.cn" target="_blank" >京ICP备17072161号-1</a>
+            <a class="copyright" href="http://beian.miit.gov.cn" target="_blank" >豫ICP备2020029637号-1</a>
           </p>
           <p>
             <a class="report-link" target="_blank" href="http://www.beian.gov.cn/portal/registerSystemInfo?recordcode=11010102002019&amp;token=1ee3034d-ba3a-4cc3-89d4-89875e2dd0b1">
               <img class="report-img" src="//img.alicdn.com/tfs/TB1..50QpXXXXX7XpXXXXXXXXXX-40-40.png" style="float:left" >
-              京公网安备 11010102002019号
+              豫ICP备 2020029637号
             </a>
           </p>
         </div>

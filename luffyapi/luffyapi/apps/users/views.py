@@ -57,6 +57,7 @@ from django_redis import get_redis_connection
 # from  luffyapi.libs.Sms import sms_codes
 from mycelery.sms.tasks import sms_codes
 
+
 class GetSMSCodeView(APIView):
 
     def get(self, request, phone):
@@ -73,7 +74,6 @@ class GetSMSCodeView(APIView):
         sms_code_tmp = {"code": sms_code}
         print(sms_code_tmp)
 
-
         # 保存验证码
 
         conn.setex('mobile_%s' % phone, constants.SMS_CODE_EXPIRE_TIME, sms_code)  # 设置有效期
@@ -82,10 +82,10 @@ class GetSMSCodeView(APIView):
         conn.setex('mobile_interval_%s' % phone, constants.SMS_CODE_INTERVAL_TIME, sms_code)  # 设置发送短信的时间间隔
 
         #  发送验证码
-        # res = sms_codes(phone, sms_code_tmp)
+        res = sms_codes(phone, sms_code_tmp)
         sms_codes.delay(phone, sms_code_tmp)
-        # logger = logging.getLogger('django')
-        # if not res:
-        #     logger.error('{}手机号短信发送失败'.format(phone))
-        #     return Response({'msg': '短信发送失败，请联系管理员'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        logger = logging.getLogger('django')
+        if not res:
+            logger.error('{}手机号短信发送失败'.format(phone))
+            return Response({'msg': '短信发送失败，请联系管理员'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response({'msg': 'ok'})
